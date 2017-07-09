@@ -643,6 +643,159 @@ int getCost(int cardNumber)
   return -1;
 }
 
+// Assignment 2 -- REFACTORED FUNCTIONS HERE
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * 
+* Name: playAdventurer
+* Input: 5 ints and a struct
+* Output: an int
+* Description: Performs the actions for Adventurer
+*  as required by the Dominion rules.
+* * * * * * * * * * * * * * * * * * * * * * * * */
+int playAdventurer(int cardDrawn, int drawntreasure, int currentPlayer, int *temphand, struct gameState *state, int z)
+{
+  while (drawntreasure < 2) {
+    if (state->deckCount[currentPlayer] < 1) {//if the deck is empty we need to shuffle discard and add to deck
+      shuffle(currentPlayer, state);
+    }
+    drawCard(currentPlayer, state);
+    cardDrawn = state->hand[currentPlayer][state->handCount[currentPlayer]-1];//top card of hand is most recently drawn card.
+    if (cardDrawn == copper || cardDrawn == silver || cardDrawn == gold)
+      drawntreasure++;
+    else {
+      temphand[z]=cardDrawn;
+      state->handCount[currentPlayer]--; //this should just remove the top card (the most recently drawn one).
+      z++;
+    }
+  }
+  
+  while (z-1 >= 0) {
+    state->discard[currentPlayer][state->discardCount[currentPlayer]++]=temphand[z-1]; // discard all cards in play that have been drawn
+    z=z-1;
+  }
+  return -1;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * 
+* Name: playSmithy
+* Input: 2 ints and a struct
+* Output: an int
+* Description: Performs the actions for Smithy
+*  as required by the Dominion rules.
+* * * * * * * * * * * * * * * * * * * * * * * * */
+int playSmithy(int currentPlayer, struct gameState *state, int handPos) {
+  int i;
+  //+3 Cards
+  for (i = 0; i <= 3; i++) {
+    drawCard(currentPlayer, state);
+  }
+      
+  //discard card from hand
+  discardCard(handPos, currentPlayer, state, 0);
+  return 0;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * 
+* Name: playVillage
+* Input: 2 ints and a struct
+* Output: an int
+* Description: Performs the actions for Village
+*  as required by the Dominion rules.
+* * * * * * * * * * * * * * * * * * * * * * * * */
+int playVillage(int currentPlayer, struct gameState *state, int handPos) {
+  //+1 Card
+  drawCard(currentPlayer, state);
+      
+  //+2 Actions
+  state->numActions = state->numActions++;
+      
+  //discard played card from hand
+  discardCard(handPos, currentPlayer, state, 0);
+  return 0;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * 
+* Name: playMinion
+* Input: 4 ints and a struct
+* Output: an int
+* Description: Performs the actions for Minion
+*  as required by the Dominion rules.
+* * * * * * * * * * * * * * * * * * * * * * * * */
+int playMinion(int currentPlayer, struct gameState *state, int choice1, int choice2, int handPos) {
+  int h, i, j;
+
+  //+1 action
+  state->numActions++;
+      
+  //discard card from hand
+  discardCard(handPos, currentPlayer, state, 0);
+      
+  if (choice2) {    //+2 coins
+    state->coins = state->coins + 2;
+  } else if (choice1) {   //discard hand, redraw 4, other players with 5+ cards discard hand and draw 4
+  
+    //discard hand
+    while (numHandCards(state) > 0) {
+      discardCard(handPos, currentPlayer, state, 0);
+    }
+        
+    //draw 4
+    for (h = 0; h < 4; h++) {
+      drawCard(currentPlayer, state);
+    }
+        
+    //other players discard hand and redraw if hand size > 4
+    for (i = 0; i < state->numPlayers; i++) {
+      if (i != currentPlayer) {
+        if ( state->handCount[i] > 4 ) {
+          //discard hand
+          while (state->handCount[i] > 0) {
+            discardCard(handPos, i, state, 0);
+          }
+              
+          //draw 4
+          for (j = 0; j < 4; j++) {
+            drawCard(i, state);
+          }
+        }
+      }
+    }
+  }
+  return 0;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * 
+* Name: playRemodel
+* Input: 4 ints and a struct
+* Output: an int
+* Description: Performs the actions for Remodel
+*  as required by the Dominion rules.
+* * * * * * * * * * * * * * * * * * * * * * * * */
+int playRemodel(int currentPlayer, struct gameState *state, int choice1, int choice2, int handPos) {
+  int i;
+  int j = state->hand[currentPlayer][choice1];  //store card we will trash
+
+  if ( (getCost(state->hand[currentPlayer][choice1]) + 2) > getCost(choice2) ) {
+    return -1;
+  }
+
+  gainCard(choice2, state, 0, currentPlayer);
+
+  //discard card from hand
+  discardCard(handPos, currentPlayer, state, 0);
+
+  //discard trashed card
+  for (i = 0; i < state->handCount[currentPlayer]; i++) {
+    if (state->hand[currentPlayer][i] == j) {
+        discardCard(i, currentPlayer, state, 0);      
+        break;
+    }
+  }
+  return 0;
+}
+
+// End of Assignment 2 -- REFACTORED FUNCTIONS HERE
+
 int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState *state, int handPos, int *bonus)
 {
   int i;
@@ -667,25 +820,8 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
   switch( card ) 
     {
     case adventurer:
-      while(drawntreasure<2){
-	if (state->deckCount[currentPlayer] <1){//if the deck is empty we need to shuffle discard and add to deck
-	  shuffle(currentPlayer, state);
-	}
-	drawCard(currentPlayer, state);
-	cardDrawn = state->hand[currentPlayer][state->handCount[currentPlayer]-1];//top card of hand is most recently drawn card.
-	if (cardDrawn == copper || cardDrawn == silver || cardDrawn == gold)
-	  drawntreasure++;
-	else{
-	  temphand[z]=cardDrawn;
-	  state->handCount[currentPlayer]--; //this should just remove the top card (the most recently drawn one).
-	  z++;
-	}
-      }
-      while(z-1>=0){
-	state->discard[currentPlayer][state->discardCount[currentPlayer]++]=temphand[z-1]; // discard all cards in play that have been drawn
-	z=z-1;
-      }
-      return 0;
+      // REFACTORED into separate function
+      return playAdventurer(cardDrawn, drawntreasure, currentPlayer, temphand, state, z);
 			
     case council_room:
       //+4 Cards
@@ -803,52 +939,16 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
       return 0;
 			
     case remodel:
-      j = state->hand[currentPlayer][choice1];  //store card we will trash
-
-      if ( (getCost(state->hand[currentPlayer][choice1]) + 2) > getCost(choice2) )
-	{
-	  return -1;
-	}
-
-      gainCard(choice2, state, 0, currentPlayer);
-
-      //discard card from hand
-      discardCard(handPos, currentPlayer, state, 0);
-
-      //discard trashed card
-      for (i = 0; i < state->handCount[currentPlayer]; i++)
-	{
-	  if (state->hand[currentPlayer][i] == j)
-	    {
-	      discardCard(i, currentPlayer, state, 0);			
-	      break;
-	    }
-	}
-
-
-      return 0;
-		
+      // REFACTORED into separate function
+      return playRemodel(currentPlayer, state, choice1, choice2, handPos);
+    
     case smithy:
-      //+3 Cards
-      for (i = 0; i < 3; i++)
-	{
-	  drawCard(currentPlayer, state);
-	}
-			
-      //discard card from hand
-      discardCard(handPos, currentPlayer, state, 0);
-      return 0;
-		
+      // REFACTORED into separate function
+      return playSmithy(currentPlayer, state, handPos);
+      
     case village:
-      //+1 Card
-      drawCard(currentPlayer, state);
-			
-      //+2 Actions
-      state->numActions = state->numActions + 2;
-			
-      //discard played card from hand
-      discardCard(handPos, currentPlayer, state, 0);
-      return 0;
+      // REFACTORED into separate function
+      return playVillage(currentPlayer, state, handPos);
 		
     case baron:
       state->numBuys++;//Increase buys by 1!
@@ -913,78 +1013,8 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
       return 0;
 		
     case minion:
-      //+1 action
-      state->numActions++;
-			
-      //discard card from hand
-      discardCard(handPos, currentPlayer, state, 0);
-			
-      if (choice1)		//+2 coins
-	{
-	  state->coins = state->coins + 2;
-	}
-			
-      else if (choice2)		//discard hand, redraw 4, other players with 5+ cards discard hand and draw 4
-	{
-	  //discard hand
-	  while(numHandCards(state) > 0)
-	    {
-	      discardCard(handPos, currentPlayer, state, 0);
-	    }
-				
-	  //draw 4
-	  for (i = 0; i < 4; i++)
-	    {
-	      drawCard(currentPlayer, state);
-	    }
-				
-	  //other players discard hand and redraw if hand size > 4
-	  for (i = 0; i < state->numPlayers; i++)
-	    {
-	      if (i != currentPlayer)
-		{
-		  if ( state->handCount[i] > 4 )
-		    {
-		      //discard hand
-		      while( state->handCount[i] > 0 )
-			{
-			  discardCard(handPos, i, state, 0);
-			}
-							
-		      //draw 4
-		      for (j = 0; j < 4; j++)
-			{
-			  drawCard(i, state);
-			}
-		    }
-		}
-	    }
-				
-	}
-      return 0;
-		
-    case steward:
-      if (choice1 == 1)
-	{
-	  //+2 cards
-	  drawCard(currentPlayer, state);
-	  drawCard(currentPlayer, state);
-	}
-      else if (choice1 == 2)
-	{
-	  //+2 coins
-	  state->coins = state->coins + 2;
-	}
-      else
-	{
-	  //trash 2 cards in hand
-	  discardCard(choice2, currentPlayer, state, 1);
-	  discardCard(choice3, currentPlayer, state, 1);
-	}
-			
-      //discard card from hand
-      discardCard(handPos, currentPlayer, state, 0);
-      return 0;
+      // REFACTORED into separate function
+      return playMinion(currentPlayer, state, choice1, choice2, handPos);
 		
     case tribute:
       if ((state->discardCount[nextPlayer] + state->deckCount[nextPlayer]) <= 1){

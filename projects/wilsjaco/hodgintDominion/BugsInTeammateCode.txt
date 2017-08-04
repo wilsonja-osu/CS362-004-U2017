@@ -1,0 +1,226 @@
+=================================
+Travis Hodgin Dominion Bug Report
+=================================
+-----------------
+BUG NUMBER: 0001
+-----------------
+
+Title: Incorrect number of player cards after playing Adventurer (Part 1)
+
+Class: Game rule-breaking bug
+
+Date: 8/3/2017 
+Reported By: Jacob Wilson
+Email: wilsjaco@oregonstate.edu   
+
+
+Product: dominion.c
+Platform: flip.engr.oregonstate.edu        
+
+Is it reproducible: Yes
+
+Description
+===========
+After the Adventurer card is played, the player has two additional
+cards in their hand. In testing, after the Adventurer card was played,
+the player had 8 cards in their hand when they should have had only 6.
+
+
+Steps to Produce/Reproduce
+--------------------------
+1) start a game of Dominion
+2) have a player play the Adventurer card
+3) the number of cards in their hand after play will be incorrect
+
+
+Expected Results
+----------------
+Player should gain two cards and discard one (played Adventurer card).
+If they start with 5 cards, they should have 6 after play (5 + 2 - 1 = 6).
+
+
+Actual Results
+--------------
+The player has 8 cards after play.
+
+
+Workarounds
+-----------
+The game still works, but it is breaking the rules of the game. There is
+no way to adjust the number of cards in their hand manually.
+
+
+Other Information
+-----------------
+It appears that this bug has two parts: first, there is no discard in the
+card function where there should be. This is responsible for the player
+having one additional card. See Bug #0002 for the second part.
+
+
+-----------------
+BUG NUMBER: 0002
+-----------------
+
+Title: Incorrect number of player cards after playing Adventurer (Part 2)
+
+Class: Game rule-breaking bug
+
+Date: 8/3/2017 
+Reported By: Jacob Wilson
+Email: wilsjaco@oregonstate.edu   
+
+
+Product: dominion.c
+Platform: flip.engr.oregonstate.edu        
+
+Is it reproducible: Yes
+
+Description
+===========
+After the Adventurer card is played, the player has two additional
+cards in their hand. In testing, after the Adventurer card was played,
+the player had 8 cards in their hand when they should have had only 6.
+
+
+Steps to Produce/Reproduce
+--------------------------
+1) start a game of Dominion
+2) have a player play the Adventurer card
+3) the number of cards in their hand after play will be incorrect
+
+
+Expected Results
+----------------
+Player should gain two cards and discard one (played Adventurer card).
+If they start with 5 cards, they should have 6 after play (5 + 2 - 1 = 6).
+
+
+Actual Results
+--------------
+The player has 8 cards after play.
+
+
+Workarounds
+-----------
+The game still works, but it is breaking the rules of the game. There is
+no way to adjust the number of cards in their hand manually.
+
+
+Other Information
+-----------------
+The second bug related to Bug #1: a while-loop in the card function is
+supposed to run until the player gains two Treasure cards, however, it
+is clear that this loop is running until three cards are gained. This
+second bug results in the player having a second additional card.
+
+
+-----------------
+BUG NUMBER: 0003
+-----------------
+
+Title: Incorrect number of player cards after playing Smithy
+
+Class: Game rule-breaking bug
+
+Date: 8/3/2017 
+Reported By: Jacob Wilson
+Email: wilsjaco@oregonstate.edu   
+
+
+Product: dominion.c
+Platform: flip.engr.oregonstate.edu        
+
+Is it reproducible: Yes
+
+Description
+===========
+After the Smithy card is played, the player has one additional card in
+their hand. In testing, after the Smithy card was played, the player
+had 8 cards in their hand when they should have had only 7.
+
+
+Steps to Produce/Reproduce
+--------------------------
+1) start a game of Dominion
+2) have a player play the Smithy card
+3) the number of cards in their hand after play will be incorrect
+
+
+Expected Results
+----------------
+Player should gain three cards and discard one (played Smithy card).
+If they start with 5 cards, they should have 7 after play (5 + 3 - 1 = 7).
+
+
+Actual Results
+--------------
+The player has 8 cards after play.
+
+
+Workarounds
+-----------
+The game still works, but it is breaking the rules of the game. There is
+no way to adjust the number of cards in their hand manually.
+
+
+Other Information
+-----------------
+This bug appears to be due to a for-loop that runs one iteration too many.
+The for-loop is supposed to be set so that the player draws three cards, but
+it appears to be set to allow the player to draw four cards. This is why the
+player ends up with too many cards.
+
+
+-----------------
+BUG NUMBER: 0004
+-----------------
+
+Title: Incorrect number of actions after playing Village
+
+Class: Game rule-breaking bug
+
+Date: 8/3/2017 
+Reported By: Jacob Wilson
+Email: wilsjaco@oregonstate.edu   
+
+
+Product: dominion.c
+Platform: flip.engr.oregonstate.edu        
+
+Is it reproducible: Yes
+
+Description
+===========
+After the Village card is played, the player has one additional available
+action. In testing, after the Village card was played, the player had four
+actions available when they should have had only three.
+
+
+Steps to Produce/Reproduce
+--------------------------
+1) start a game of Dominion
+2) have a player play the Village card
+3) the number of actions in the game state will be incorrect
+
+
+Expected Results
+----------------
+Player should gain two actions.
+
+
+Actual Results
+--------------
+The player gained three actions after play.
+
+
+Workarounds
+-----------
+The game still works, but it is breaking the rules of the game. There is
+no way to adjust the number of actions manually.
+
+
+Other Information
+-----------------
+This bug appears to be caused by how the actions are increased in the Village card
+function. The player should only gain two actions, however, it is clear in the code
+that the player will gain three actions since the action variable is increased by 3.

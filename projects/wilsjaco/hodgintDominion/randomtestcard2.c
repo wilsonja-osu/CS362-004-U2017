@@ -24,7 +24,7 @@
 *  check that various conditions are equal. It counts up the number
 *  of tests that have failed, and returns that value to main.
 */
-int checkVillageCard(int p, struct gameState *post, int *test1, int *test2, int *test3, int *test4) {
+int checkVillageCard(int p, struct gameState *post, int *test1, int *test2, int *test3) {
 	// variables for tracking values
 	struct gameState pre;
 	int testStatus = 0;
@@ -39,34 +39,26 @@ int checkVillageCard(int p, struct gameState *post, int *test1, int *test2, int 
 
 	// assign before and after variables
 	handBefore = pre.handCount[p];
-	deckBefore = pre.deckCount[p];
 	actionsBefore = pre.numActions;
 	handAfter = post->handCount[p];
-	deckAfter = post->deckCount[p];
 	actionsAfter = post->numActions;
 
-	// TEST 1: two cards have been added to hand
-	if ((handBefore + 2) != handAfter) {
+	// TEST 1: one card has been added to hand
+	if ((handBefore + 1 - 1) != handAfter) {
 		testStatus += 1;
 		*test1 = 1;
 	}
 
-	// TEST 2: three cards have been removed from deck
-	if ((deckBefore - 3) != deckAfter) {
+	// TEST2: two actions have been added
+	if ((actionsBefore + 2) != actionsAfter) {
 		testStatus += 1;
 		*test2 = 1;
 	}
 
-	// TEST3: two actions have been added
-	if ((actionsBefore + 2) != actionsAfter) {
-		testStatus += 1;
-		*test3 = 1;
-	}
-
-	// TEST4: a correct return value from function
+	// TEST3: a correct return value from function
 	if (r != 0) {
 		testStatus += 1;
-		*test4 = 1;
+		*test3 = 1;
 	}
 
 	return testStatus;
@@ -86,7 +78,6 @@ int main() {
 	int test1 = 0;
 	int test2 = 0;
 	int test3 = 0;
-	int test4 = 0;
 
 	printf("-------- RANDOM Testing Village Card--------\n");
 
@@ -110,7 +101,7 @@ int main() {
 		testGame.numActions = floor(Random() * 10);
 
 		// run the test
-		r = checkVillageCard(currentPlayer, &testGame, &test1, &test2, &test3, &test4);
+		r = checkVillageCard(currentPlayer, &testGame, &test1, &test2, &test3);
 
 		// keep track of the total number of tests failed
 		if (r > 0) {
@@ -125,18 +116,15 @@ int main() {
 	// print results
 	if (testFailed) {
 		printf("Village Result: FAILED TESTS\n");
-		printf("Number of tests failed: %d out of %d\n", numTestsFailed, (i * 4));
+		printf("Number of tests failed: %d out of %d\n", numTestsFailed, (i * 3));
 		printf("Failing tests:\n");
 		if (test1 == 1) {
 			printf("- incorrect number of cards in hand\n");
 		}
 		if (test2 == 1) {
-			printf("- incorrect number of cards in deck\n");
-		}
-		if (test3 == 1) {
 			printf("- incorrect number of actions\n");
 		}
-		if (test4 == 1) {
+		if (test3 == 1) {
 			printf("- incorrect function return value\n");
 		}
 		printf("\n");

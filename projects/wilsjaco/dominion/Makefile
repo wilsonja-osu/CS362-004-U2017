@@ -100,7 +100,7 @@ randomtestadventurer.out: randomtestadventurer.c
 	randomtestadventurer >> randomtestadventurer.out
 	gcov -b -c dominion.c >> randomtestadventurer.out
 
-all: playdom player testDrawCard testBuyCard badTestDrawCard randomtestcard1.out randomtestcard2.out randomtestadventurer.out
+all: playdom player testDrawCard testBuyCard badTestDrawCard unittestresults.out
 
 clean:
-	rm -f *.o playdom.exe playdom player player.exe  *.gcov *.gcda *.gcno *.so *.out testDrawCard testDrawCard.exe badTestDrawCard badTestDrawCard.exe randomtestadventurer randomtestadventurer.exe randomtestcard1 randomtestcard1.exe randomtestcard2 randomtestcard2.exe
+	rm -f *.o playdom.exe playdom player player.exe  *.gcov *.gcda *.gcno *.so *.out testDrawCard testDrawCard.exe badTestDrawCard badTestDrawCard.exe cardtest1 cardtest1.exe cardtest2 cardtest2.exe cardtest3 cardtest3.exe cardtest4 cardtest4.exe unittest1 unittest1.exe unittest2 unittest2.exe unittest3 unittest3.exe unittest4 unittest4.exe randomtestadventurer randomtestadventurer.exe randomtestcard1 randomtestcard1.exe randomtestcard2 randomtestcard2.exe

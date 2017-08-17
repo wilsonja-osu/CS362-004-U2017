@@ -705,10 +705,11 @@ int playSmithy(int currentPlayer, struct gameState *state, int handPos) {
 int playVillage(int currentPlayer, struct gameState *state, int handPos) {
   //+1 Card
   drawCard(currentPlayer, state);
-      
+  printf("Number of actions before: %d\n", state->numActions);
   //+2 Actions
-  state->numActions = state->numActions++;
-      
+  state->numActions = state->numActions + 2;
+  printf("Number of actions after: %d\n", state->numActions);
+  
   //discard played card from hand
   discardCard(handPos, currentPlayer, state, 0);
   return 0;
